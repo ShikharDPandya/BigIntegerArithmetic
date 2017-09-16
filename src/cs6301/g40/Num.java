@@ -13,43 +13,43 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-public class Num  implements Comparable<Num> {
-
-    static long defaultBase = 11;  // This can be changed to what you want it to be.
-    long base = defaultBase;  // Change as needed
-    boolean negative;
-    LinkedList<Long> Digits;
-    /* Start of Level 1 */
-    Num(String s) {
-        long q,r,tempSize=0;
-        Digits = new LinkedList<>();
-        LinkedList<Long> TempDigits = new LinkedList<>();
-        for (char c:s.toCharArray())
-        {
-            if(c=='1')
-                Digits.add(1L);
-            else if(c=='2')
-                Digits.add(2L);
-            else if(c=='3')
-                Digits.add(3L);
-            else if(c=='4')
-                Digits.add(4L);
-            else if(c=='5')
-                Digits.add(5L);
-            else if(c=='6')
-                Digits.add(6L);
-            else if(c=='7')
-                Digits.add(7L);
-            else if(c=='8')
-                Digits.add(8L);
-            else if(c=='9')
-                Digits.add(9L);
-            else if(c=='0')
-                Digits.add(0L);
-            else if (c=='-')
-                negative = true;
-        }
-        /*
+public class Num implements Comparable<Num> {
+	
+	static long defaultBase = 11;  // This can be changed to what you want it to be.
+	long base = defaultBase;  // Change as needed
+	boolean negative;
+	LinkedList<Long> Digits;
+	
+	/* Start of Level 1 */
+	Num(String s) {
+		long q, r, tempSize = 0;
+		Digits = new LinkedList<>();
+		LinkedList<Long> TempDigits = new LinkedList<>();
+		for (char c : s.toCharArray()) {
+			if (c == '1')
+				Digits.add(1L);
+			else if (c == '2')
+				Digits.add(2L);
+			else if (c == '3')
+				Digits.add(3L);
+			else if (c == '4')
+				Digits.add(4L);
+			else if (c == '5')
+				Digits.add(5L);
+			else if (c == '6')
+				Digits.add(6L);
+			else if (c == '7')
+				Digits.add(7L);
+			else if (c == '8')
+				Digits.add(8L);
+			else if (c == '9')
+				Digits.add(9L);
+			else if (c == '0')
+				Digits.add(0L);
+			else if (c == '-')
+				negative = true;
+		}
+		/*
         //TempDigits = Digits;
         while(Digits.size() != 0)
         {
@@ -426,26 +426,25 @@ public class Num  implements Comparable<Num> {
 	return null;
     }
     /* End of Level 1 */
-
-    /* Start of Level 2 */
-    static Num divide(Num a, Num b) {
-	return null;
-    }
-
-    static Num mod(Num a, Num b) {
-	return null;
-    }
-
-    // Use divide and conquer
-    static Num power(Num a, Num n) {
-	return null;
-    }
-
-    static Num squareRoot(Num a) {
-	return null;
-    }
+	
+	/* Start of Level 2 */
+	static Num divide(Num a, Num b) {
+		return null;
+	}
+	
+	static Num mod(Num a, Num b) {
+		return null;
+	}
+	
+	// Use divide and conquer
+	static Num power(Num a, Num n) {
+		return null;
+	}
+	
+	static Num squareRoot(Num a) {
+		return null;
+	}
     /* End of Level 2 */
-
 
     // Utility functions
     // compare "this" to "other": return +1 if this is greater, 0 if equal, -1 otherwise

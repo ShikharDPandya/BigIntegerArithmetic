@@ -6,6 +6,9 @@
 package cs6301.g40;
 
 
+import com.sun.org.apache.regexp.internal.RE;
+
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Scanner;
@@ -65,7 +68,7 @@ public class Num  implements Comparable<Num> {
         Digits=TempDigits;
         TempDigits=null;
         */
-        Digits=convertBase(10,11);
+        this.Digits=convertBase_Input(this.Digits,10,this.base);
     }
 
     Num(long x)
@@ -79,20 +82,50 @@ public class Num  implements Comparable<Num> {
             x=x/base;
         }
     }
-    public LinkedList<Long> convertBase(long a, long b)
+
+    Num(long x,boolean init)
     {
-        LinkedList<Long> D = new LinkedList<>();
+        Digits = new LinkedList<>();
+        if(init)
+        {
+            if (x < 0)
+                negative = true;
+            while (x != 0) {
+                Digits.add(x % base);
+                x = x / base;
+            }
+        }
+    }
+
+    void convertBaseFromLong(long x, long from, long to)
+    {
+        if(x==0)
+        {
+            this.Digits.add(x % this.base);
+            return;
+        }
+        while(x!=0)
+        {
+            this.Digits.add(x % this.base);
+            x=x/this.base;
+        }
+
+    }
+
+    public static LinkedList<Long> convertBase_Input( LinkedList<Long> dig,long from,long to)
+    {
+        LinkedList<Long> D = new LinkedList<>(dig);
         long r,tempSize=0;
         LinkedList<Long> TempDigits = new LinkedList<>();
-        D=this.Digits;
+        //D=this.Digits;
         while(D.size() != 0)
         {
             r=0;
             tempSize = D.size();
             for (int i = 0; i < tempSize; i++)
             {
-                D.add((r*a + D.peek())/b);
-                r = (r * a + D.peek())%b;
+                D.add((r*from + D.peek())/to);
+                r = (r * from + D.peek())%to;
                 D.pop();
             }
             TempDigits.add(r);
@@ -103,6 +136,20 @@ public class Num  implements Comparable<Num> {
         TempDigits=null;
         return D;
     }
+
+
+    public LinkedList<Long> convertBase_Output()
+    {
+        LinkedList<Long> Reverse = new LinkedList<>();
+        for (Long digit:this.Digits)
+        {
+            Reverse.push(digit);
+        }
+        return convertBase_Input(Reverse,this.base,10);
+    }
+
+
+
     static Num add(Num a, Num b,boolean neg)
     {
         Num c=new Num(0);
@@ -120,7 +167,7 @@ public class Num  implements Comparable<Num> {
            sum = (element_a + element_b + carry)%c.base;
            carry = (element_a + element_b + carry)/c.base;
 
-           c.Digits.push(sum);
+           c.Digits.add(sum);
         }
         while(ita.hasNext() && !itb.hasNext())
         {
@@ -128,7 +175,7 @@ public class Num  implements Comparable<Num> {
            sum = (element_a + carry)%c.base;
            carry = (element_a + carry)/c.base;
 
-           c.Digits.push(sum);
+           c.Digits.add(sum);
         }
         while(!ita.hasNext() && itb.hasNext())
         {
@@ -136,10 +183,10 @@ public class Num  implements Comparable<Num> {
             sum = (element_b + carry)%c.base;
             carry = (element_b + carry)/c.base;
 
-            c.Digits.push(sum);
+            c.Digits.add(sum);
         }
         if(!ita.hasNext() && !itb.hasNext() && carry!=0)
-            c.Digits.push(carry);
+            c.Digits.add(carry);
         return c;
     }
 
@@ -212,13 +259,13 @@ public class Num  implements Comparable<Num> {
                 didBorrow = true;
             }
 
-            c.Digits.push(diff);
+            c.Digits.add(diff);
         }
         if(!didBorrow)
             while(ita.hasNext() && !itb.hasNext())
             {
                 element_a = (Long)ita.next();
-                c.Digits.push(element_a);
+                c.Digits.add(element_a);
             }
         else
             while(ita.hasNext() && !itb.hasNext())
@@ -229,7 +276,7 @@ public class Num  implements Comparable<Num> {
                     --element_a;
                     borrowDone = true;
                 }
-                c.Digits.push(element_a);
+                c.Digits.add(element_a);
             }
 
 
@@ -242,11 +289,11 @@ public class Num  implements Comparable<Num> {
         Iterator ita= a.Digits.iterator();
         Iterator itb= b.Digits.iterator();
         Long element_a,element_b;
-        LinkedList<Long> copy_a = new LinkedList<>();
-        LinkedList<Long> copy_b = new LinkedList<>();
+        LinkedList<Long> copy_a = new LinkedList<>(a.Digits);
+        LinkedList<Long> copy_b = new LinkedList<>(b.Digits);
 
-        copy_a = a.Digits;
-        copy_b = b.Digits;
+        //copy_a = a.Digits;
+        //copy_b = b.Digits;
 
         if(!a.negative && !b.negative)
         {
@@ -280,11 +327,100 @@ public class Num  implements Comparable<Num> {
         return c;
     }
 
-    // Implement Karatsuba algorithm for excellence credit
-    static Num product(Num a, Num b) {
-
+    static Num rightShift(Num X, long n)
+    {
+        while(n-- > 0)
+        {
+            X.Digits.push(0L);
+        }
+        return X;
     }
 
+    // Implement Karatsuba algorithm for excellence credit
+    static Num unsignedProduct(Num X, Num Y)
+    {
+        Num c = new Num(0,false);
+        Num X2_Y2 = new Num(0,false);
+        Num X1_Y1 = new Num(0,false);
+        Num X1 = new Num(0,false);
+        Num X2 = new Num(0,false);
+        Num Y1 = new Num(0,false);
+        Num Y2 = new Num(0,false);
+        long prod=1,index = 0, n = 0;
+
+
+        if(X.Digits.size() != Y.Digits.size())
+        {
+            if(X.Digits.size() < Y.Digits.size())
+            {
+                while(X.Digits.size() != Y.Digits.size())
+                {
+                    X.Digits.add(0L);
+                }
+            }
+            else
+            {
+                while(Y.Digits.size() != X.Digits.size())
+                {
+                    Y.Digits.add(0L);
+                }
+            }
+        }
+        if(X.Digits.size()%2 != 0 && X.Digits.size()!=1)
+        {
+            X.Digits.add(0L);
+            Y.Digits.add(0L);
+        }
+
+        n = X.Digits.size();        // size of X is same as Y now
+
+        if(X.Digits.size() == 1 && Y.Digits.size() == 1)
+        {
+            prod = X.Digits.peek() * Y.Digits.peek();
+            c.convertBaseFromLong(prod,10,11);
+            return c;
+        }
+        else
+        {
+            for (long digit:X.Digits)
+            {
+                if(index < X.Digits.size()/2)
+                {
+                    X2.Digits.add(digit);
+                }
+                else if(index < X.Digits.size())
+                {
+                    X1.Digits.add(digit);
+                }
+                index++;
+            }
+            index = 0;
+            for (long digit:Y.Digits)
+            {
+                if(index < Y.Digits.size()/2)
+                {
+                    Y2.Digits.add(digit);
+                }
+                else if(index < Y.Digits.size())
+                {
+                    Y1.Digits.add(digit);
+                }
+                index++;
+            }
+            X1_Y1 = unsignedProduct(X1,Y1);
+            X2_Y2 = unsignedProduct(X2,Y2);
+            c = add(add(rightShift(subtract(subtract(unsignedProduct(add(X1,X2),add(Y1,Y2)),X1_Y1),X2_Y2),n/2),rightShift(X1_Y1,n)),X2_Y2);
+        }
+        return c;
+    }
+
+    static Num product(Num a, Num b)
+    {
+        Num c = new Num(0,false);
+        c.negative=a.negative^b.negative;
+        c = unsignedProduct(a,b);
+        return c;
+    }
     // Use divide and conquer
     static Num power(Num a, long n) {
 	return null;
@@ -318,11 +454,11 @@ public class Num  implements Comparable<Num> {
         Iterator ita= this.Digits.iterator();
         Iterator itb= other.Digits.iterator();
         Long element_a,element_b;
-        LinkedList<Long> copy_this = new LinkedList<>();
-        LinkedList<Long> copy_other = new LinkedList<>();
+        LinkedList<Long> copy_this = new LinkedList<>(this.Digits);
+        LinkedList<Long> copy_other = new LinkedList<>(other.Digits);
 
-        copy_this = this.Digits;
-        copy_other = other.Digits;
+        //copy_this = this.Digits;
+        //copy_other = other.Digits;
 
         if(this.Digits.size()!=other.Digits.size())
         {
@@ -337,14 +473,14 @@ public class Num  implements Comparable<Num> {
         }
         else
         {
-            while(!copy_other.isEmpty() && !copy_this.isEmpty() && (copy_other.peek() - copy_this.peek() == 0 ))
+            while(!copy_other.isEmpty() && !copy_this.isEmpty() && (copy_other.peekLast() - copy_this.peekLast() == 0 ))
             {
                 copy_this.removeLast();
                 copy_other.removeLast();
             }
             if(copy_other.isEmpty() && copy_this.isEmpty())
                 return 0;
-            if(copy_other.peek() - copy_this.peek() > 0)
+            if(copy_other.peekLast() - copy_this.peekLast() > 0)
                 return -1;
             else
             {
@@ -368,9 +504,9 @@ public class Num  implements Comparable<Num> {
     // Return number to a string in base 10
     public String toString()
     {
-        LinkedList<Long> ConvertedDigits=new LinkedList<>();
-        ConvertedDigits=convertBase(this.base,10);
+        LinkedList<Long> ConvertedDigits=new LinkedList<>(this.convertBase_Output());
         String output=new String();
+        //String output=new String(this.convertBase_Output(this.base));
         StringBuilder finalOp = new StringBuilder();
         for (Long digit:ConvertedDigits)
         {
@@ -405,9 +541,10 @@ public class Num  implements Comparable<Num> {
 
         Num result = new Num(0L);
         //result = add(bigNumber1,bigNumber2);
-        result = subtract(bigNumber1,bigNumber2);
+        //result = subtract(bigNumber1,bigNumber2);
+        result = product(bigNumber1,bigNumber2);
         Output=result.toString();
-        System.out.println("bigumber1 - bigNumber2 "+Output);
+        System.out.println("bigumber1 * bigNumber2 "+Output);
 
 
     }

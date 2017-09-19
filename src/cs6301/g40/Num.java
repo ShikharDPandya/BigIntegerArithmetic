@@ -330,6 +330,9 @@ public class Num implements Comparable<Num> {
                 c.negative=true;
             }
         }
+        c.truncate();
+        a.truncate();
+        b.truncate();
         return c;
     }
 
@@ -425,33 +428,158 @@ public class Num implements Comparable<Num> {
         Num c = new Num(0,false);
         c.negative=a.negative^b.negative;
         c = unsignedProduct(a,b);
+        c.truncate();
+        a.truncate();
+        b.truncate();
         return c;
     }
     // Use divide and conquer
     static Num power(Num a, long n) {
-	return null;
+        if(n==0)
+        {
+            Num result = new Num(1);
+            return result;
+        }
+        else if (n==1)
+        {
+            return a;
+        }
+    
+        Long first = n/2;
+        Long second = n-n/2;
+        Num result = product(power(a,first),power(a,second));
+        // result.printList();
+        return result;
+    
     }
     /* End of Level 1 */
 	
 	/* Start of Level 2 */
-	static Num divide(Num a, Num b) {
-		return null;
-	}
-	
-	static Num mod(Num a, Num b) {
-		return null;
-	}
-	
-	// Use divide and conquer
-	static Num power(Num a, Num n) {
-		return null;
-	}
-	
-	static Num squareRoot(Num a) {
-		return null;
-	}
-    /* End of Level 2 */
-
+    static Num divide(Num a, Num b)
+    {
+        Num low = new Num("0");
+        Num result = binarydivision(a,b,a,low);
+        if(a.negative!=b.negative)
+            result.negative=true;
+        return result;
+    }
+    
+    static Num binarydivision(Num a, Num b, Num high, Num low){
+        Num zero = new Num("0");
+        if(b.compareTo(zero)==0) throw  new java.lang.RuntimeException("Division by Zero");
+        Num mid = divideByTwo(add(high,low));
+        Num one = new Num ("1");
+        Num prod = product(mid,b);
+        // truncate leading zeroes from numbers
+	   /* mid.truncate();
+	    prod.truncate();
+	    b.truncate();
+	    prod.truncate();*/
+        if(low.compareTo(high)>=0)
+        {
+            if(prod.compareTo(a)>0) return subtract(mid,one);
+            else return mid;
+        }
+        
+        else if(prod.compareTo(a)==0) return mid;
+        
+        else if (prod.compareTo(a)>0) return binarydivision(a,b,subtract(mid,one),low);
+        
+        else return binarydivision(a,b,high,add(mid,one));
+        
+    }
+    
+    static Num mod(Num a, Num b)
+    {
+        Num c = divide(a,b);
+        Num d = product(c,b);
+        Num e = subtract(a,d);
+        return e;
+    }
+    
+    
+    // Use divide and conquer
+    static Num power(Num a, Num n)
+    {
+        Num zero = new Num(0L);
+        Num one = new Num(1L);
+        if(n.compareTo(zero)==0)
+        {
+            Num result = new Num(1);
+            return result;
+        }
+    
+        else if (n.compareTo(one)==0)
+        {
+            return a;
+        }
+        else if(n.Digits.size()==1){return power(a,n.Digits.remove());}
+        Long temp = n.Digits.remove();
+        Num n0 = new Num (temp);
+        Num A = power(a,n);
+        Num B = power(A,a.base);
+        Num C = power(a,n0);
+        Num D = product(B,C);
+        return D;
+    }
+    
+    static Num squareRoot(Num a )
+    {
+        Num zero = new Num("0");
+        Num sqroot = findRoot(a,a,zero);
+        
+        return sqroot;
+    }
+    
+    static Num findRoot(Num a,Num high, Num low)
+    {
+        Num one = new Num("1");
+        Num two = new Num("2");
+        Num zero = new Num("0");
+        Num mid = divideByTwo(add(high,low));
+        Num val1 = subtract(a,product(mid,mid));
+        Num val2 =  add(product(two,mid),one);
+        
+        if(low.compareTo(high)>=0)
+        {
+            if(val1.negative)
+                return subtract(mid,one);
+            else
+                return mid;
+        }
+        
+        if(val1.compareTo(zero)==0) return mid;
+        else if (val1.negative) return findRoot(a,subtract(mid,one),low);
+        else return findRoot(a,high,add(mid,one));
+    }    /* End of Level 2 */
+    
+    
+    static Num divideByTwo(Num a)
+    {
+        Long rem = 0L;
+        Long quotient;
+        int size=a.Digits.size();
+        Long sum;
+        Long num;
+        while(size>0)
+        {
+            num = a.Digits.removeLast();
+            sum = rem*a.base + num;
+            quotient = sum/2 ;
+            rem = sum%2 ;
+            a.Digits.push(quotient);
+            size--;
+        }
+        a.truncate();
+        return a;
+    }
+    
+    public void truncate(){
+        while(this.Digits.peekLast()==0L && this.Digits.size()>1){
+            this.Digits.removeLast();
+        }
+    }
+    
     // Utility functions
     // compare "this" to "other": return +1 if this is greater, 0 if equal, -1 otherwise
     public int compareTo(Num other)
@@ -537,19 +665,19 @@ public class Num implements Comparable<Num> {
         //System.out.println("Enter 1st number as a string");
         //input=in.next();
         Num bigNumber1 = new Num("5000");
-        bigNumber1.printList();
+   //     bigNumber1.printList();
 
         //System.out.println("Enter 2nd number as a string");
         //input=in.next();
         Num bigNumber2 = new Num("1");
-        bigNumber2.printList();
+    //    bigNumber2.printList();
 
         Num result = new Num(0L);
         //result = add(bigNumber1,bigNumber2);
-        result = subtract(bigNumber1,bigNumber2);
+        result = squareRoot(bigNumber1);
         //result = product(bigNumber1,bigNumber2);
-        Output=result.toString();
-        System.out.println("bigumber1 * bigNumber2 "+Output);
+        System.out.print(result.toString());
+     //   System.out.println("bigumber1 * bigNumber2 "+Output);
 
 
     }

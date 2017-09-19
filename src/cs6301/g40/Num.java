@@ -15,7 +15,7 @@ import java.util.Scanner;
 
 public class Num implements Comparable<Num> {
 	
-	static long defaultBase = 11;  // This can be changed to what you want it to be.
+	static long defaultBase = 10;  // This can be changed to what you want it to be.
 	long base = defaultBase;  // Change as needed
 	boolean negative;
 	LinkedList<Long> Digits;
@@ -152,7 +152,7 @@ public class Num implements Comparable<Num> {
 
     static Num add(Num a, Num b,boolean neg)
     {
-        Num c=new Num(0);
+        Num c=new Num(0,false);
         Iterator ita= a.Digits.iterator();
         Iterator itb= b.Digits.iterator();
         Long sum=0L,carry=0L, element_a,element_b;
@@ -192,7 +192,7 @@ public class Num implements Comparable<Num> {
 
     static Num add(Num a, Num b)
     {
-        Num c=new Num(0);
+        Num c=new Num(0,false);
         Iterator ita= a.Digits.iterator();
         Iterator itb= b.Digits.iterator();
         Long sum=0L,carry=0L, element_a,element_b;
@@ -233,7 +233,7 @@ public class Num implements Comparable<Num> {
 
     static Num subtract(Num a, Num b,boolean neg)
     {
-        Num c=new Num(0);
+        Num c=new Num(0,false);
         Iterator ita= a.Digits.iterator();
         Iterator itb= b.Digits.iterator();
         Long diff=0L, element_a,element_b;
@@ -274,7 +274,13 @@ public class Num implements Comparable<Num> {
                 if(!borrowDone)
                 {
                     --element_a;
-                    borrowDone = true;
+                    if(element_a<0)
+                    {
+                        element_a = a.base + element_a;
+                        didBorrow = true;
+                    }
+                    else
+                        borrowDone = true;
                 }
                 c.Digits.add(element_a);
             }
@@ -285,7 +291,7 @@ public class Num implements Comparable<Num> {
 
     static Num subtract(Num a, Num b)
     {
-        Num c=new Num(0);
+        Num c=new Num(0,false);
         Iterator ita= a.Digits.iterator();
         Iterator itb= b.Digits.iterator();
         Long element_a,element_b;
@@ -528,20 +534,20 @@ public class Num implements Comparable<Num> {
         String Output = new String();
         Scanner in = new Scanner(System.in);
         int big=2;
-        System.out.println("Enter 1st number as a string");
-        input=in.next();
-        Num bigNumber1 = new Num(input);
+        //System.out.println("Enter 1st number as a string");
+        //input=in.next();
+        Num bigNumber1 = new Num("5000");
         bigNumber1.printList();
 
-        System.out.println("Enter 2nd number as a string");
-        input=in.next();
-        Num bigNumber2 = new Num(input);
+        //System.out.println("Enter 2nd number as a string");
+        //input=in.next();
+        Num bigNumber2 = new Num("1");
         bigNumber2.printList();
 
         Num result = new Num(0L);
         //result = add(bigNumber1,bigNumber2);
-        //result = subtract(bigNumber1,bigNumber2);
-        result = product(bigNumber1,bigNumber2);
+        result = subtract(bigNumber1,bigNumber2);
+        //result = product(bigNumber1,bigNumber2);
         Output=result.toString();
         System.out.println("bigumber1 * bigNumber2 "+Output);
 

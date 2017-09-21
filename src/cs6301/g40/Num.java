@@ -49,28 +49,10 @@ public class Num implements Comparable<Num> {
 			else if (c == '-')
 				negative = true;
 		}
-		/*
-        //TempDigits = Digits;
-        while(Digits.size() != 0)
-        {
-            r=0;
-            tempSize = Digits.size();
-            for (int i = 0; i < tempSize; i++)
-            {
-                Digits.add((r*10 + Digits.peek())/base);
-                r = (r * 10 + Digits.peek())%base;
-                Digits.pop();
-            }
-            TempDigits.add(r);
-            while(!Digits.isEmpty()&&Digits.peek()==0)
-                Digits.pop();
-        }
-        Digits=TempDigits;
-        TempDigits=null;
-        */
         this.Digits=convertBase_Input(this.Digits,10,this.base);
     }
 
+    /*
     Num(long x)
     {
         Digits = new LinkedList<>();
@@ -82,7 +64,9 @@ public class Num implements Comparable<Num> {
             x=x/base;
         }
     }
-
+    */
+    //overloaded constructor - if init is 0: only allocates memory to the linked list 'Digits'
+    // and doesnt initialise with the value
     Num(long x,boolean init)
     {
         Digits = new LinkedList<>();
@@ -90,12 +74,28 @@ public class Num implements Comparable<Num> {
         {
             if (x < 0)
                 negative = true;
+            if(x == 0)
+            {
+                Digits.add(0L);
+            }
             while (x != 0) {
                 Digits.add(x % base);
                 x = x / base;
             }
+            //convertBaseFromLong(x,10,this.base());
         }
+        this.Digits=convertBase_Input(this.Digits,10,this.base());
     }
+
+    Num(Num obj)
+    {
+        this.Digits= new LinkedList<>(obj.Digits);
+        this.negative=obj.negative;
+        this.base = obj.base;
+    }
+
+    //Method to convert Base from one base to another, when the number is given as long;
+    // and store the number in new base is 'Digits' linkedList
 
     void convertBaseFromLong(long x, long from, long to)
     {
@@ -109,15 +109,31 @@ public class Num implements Comparable<Num> {
             this.Digits.add(x % this.base);
             x=x/this.base;
         }
-
     }
 
+    //Method to convert Base from one base to another, when the number is stored in linked list;
+    // and store the number in new base is 'Digits' linkedList
     public static LinkedList<Long> convertBase_Input( LinkedList<Long> dig,long from,long to)
     {
         LinkedList<Long> D = new LinkedList<>(dig);
         long r,tempSize=0;
         LinkedList<Long> TempDigits = new LinkedList<>();
-        //D=this.Digits;
+        //
+        /*eg 11|121|
+             11| 11|0
+             11|  1|0
+             11|  0|1
+
+          This is being replicated in the code.
+          Steps:
+          1.    Take one digit say D1 at a time from MSB to LSB
+          2.    Multiply remainder (r) with the base (in which it is in) and add D1 to it, call this term T
+                and divide the whole thing by the base we need to convert into. Call it Q
+          3.    Add Q into the temporary LinkedList D
+          4.    Take modulo of T with the "to" base. Call this remainder r
+          5.    When all digits are exhausted, we get the Quotient in LinkedList D.
+          6.    Repeat this until the quotient becomes 0
+        */
         while(D.size() != 0)
         {
             r=0;
@@ -129,6 +145,7 @@ public class Num implements Comparable<Num> {
                 D.pop();
             }
             TempDigits.add(r);
+            // To remove 0s ahead of the number in LinkedList D
             while(!D.isEmpty()&&D.peek()==0)
                 D.pop();
         }
@@ -137,7 +154,10 @@ public class Num implements Comparable<Num> {
         return D;
     }
 
-
+    /*
+        This original Linked List 'Digits' is stored from LSB to MSB
+        and in order to output it correctly we need to reverse it
+     */
     public LinkedList<Long> convertBase_Output()
     {
         LinkedList<Long> Reverse = new LinkedList<>();
@@ -148,9 +168,11 @@ public class Num implements Comparable<Num> {
         return convertBase_Input(Reverse,this.base,10);
     }
 
+    /*
+        Code to add 2 numbers without considering their signs
+     */
 
-
-    static Num add(Num a, Num b,boolean neg)
+    static Num UnsignedAdd(Num a, Num b)
     {
         Num c=new Num(0,false);
         Iterator ita= a.Digits.iterator();
@@ -158,7 +180,7 @@ public class Num implements Comparable<Num> {
         Long sum=0L,carry=0L, element_a,element_b;
 
 
-        c.negative=neg;
+        //c.negative=neg;
 
         while(ita.hasNext() && itb.hasNext())
         {
@@ -190,6 +212,15 @@ public class Num implements Comparable<Num> {
         return c;
     }
 
+    /*
+
+    Code to add 2 numbers considering their signs.
+    if both the numbers are positive, we simpy add them.
+    if one of them is negative, we subtract one from the other
+    if both are negative, we add them but keep the sign negative
+
+    */
+
     static Num add(Num a, Num b)
     {
         Num c=new Num(0,false);
@@ -199,41 +230,46 @@ public class Num implements Comparable<Num> {
 
         if(!a.negative && !b.negative)   // a and b both are positive
         {
-            c = add(a,b,false);
+            c = UnsignedAdd(a,b);
         }
         else if(a.negative && !b.negative)             // a is negative
         {
             if(a.compareTo(b)>=0)       //absolute value of a is bigger than b and a is negative
             {
-                c=subtract(a,b,false);
+                c=UnsignedSubtract(a,b);
                 c.negative=true;
             }
             else                        //absolute value of b is bigger than a and a is negative
             {
-                c=subtract(b,a,false);
+                c=UnsignedSubtract(b,a);
             }
         }
-        else if(b.negative && !b.negative)             // b is negative
+        else if(b.negative && !a.negative)             // b is negative
         {
             if(a.compareTo(b)>=0)          //absolute value of a is bigger than b and b is negative
-                c=subtract(a,b,false);
+                c=UnsignedSubtract(a,b);
             else                            //absolute value of b is bigger than a and b is negative
             {
-                c=subtract(b,a,false);
+                c=UnsignedSubtract(b,a);
                 c.negative=true;
             }
         }
         else                            // a and b both are negative
         {
-            c=add(a,b,false);
+            c=UnsignedAdd(a,b);
             c.negative = true;
         }
         return c;
     }
 
-    static Num subtract(Num a, Num b,boolean neg)
+     /*
+        Code to subtract 2 numbers without considering their signs
+        and considering abs(a) is greater than abs(b)
+     */
+
+    static Num UnsignedSubtract(Num a, Num b)
     {
-        Num c=new Num(0,false);
+         Num c=new Num(0,false);
         Iterator ita= a.Digits.iterator();
         Iterator itb= b.Digits.iterator();
         Long diff=0L, element_a,element_b;
@@ -289,6 +325,16 @@ public class Num implements Comparable<Num> {
         return c;
     }
 
+    /*
+
+    Code to subtract 2 numbers considering their signs.
+    if both the numbers are positive, we simpy subtract them.
+    if one of them is negative, we add one from the other and put the corresponding sign
+    if both are negative, we subtract them and keep the appropriate sign
+
+    */
+
+
     static Num subtract(Num a, Num b)
     {
         Num c=new Num(0,false);
@@ -304,29 +350,29 @@ public class Num implements Comparable<Num> {
         if(!a.negative && !b.negative)
         {
            if(a.compareTo(b)>=0)
-               c=subtract(a,b,false);
+               c=UnsignedSubtract(a,b);
            else
            {
-              c=subtract(b,a,false);
+              c=UnsignedSubtract(b,a);
               c.negative=true;
            }
         }
         else if(a.negative && !b.negative)
         {
-            c = add(a,b,false);
+            c = UnsignedAdd(a,b);
             c.negative = true;
         }
         else if(b.negative && !a.negative)
         {
-            c = add(a,b,false);
+            c = UnsignedAdd(a,b);
         }
         else
         {
             if(b.compareTo(a)>=0)
-                c=subtract(b,a,false);
+                c=UnsignedSubtract(b,a);
             else
             {
-                c=subtract(a,b,false);
+                c=UnsignedSubtract(a,b);
                 c.negative=true;
             }
         }
@@ -335,6 +381,11 @@ public class Num implements Comparable<Num> {
         b.truncate();
         return c;
     }
+
+    /*
+        Method to do a right shift of the number by pushing 0s.
+        Used for Multiplication
+    * */
 
     static Num rightShift(Num X, long n)
     {
@@ -345,7 +396,7 @@ public class Num implements Comparable<Num> {
         return X;
     }
 
-    // Implement Karatsuba algorithm for excellence credit
+    // Implements Karatsuba algorithm for excellence credit
     static Num unsignedProduct(Num X, Num Y)
     {
         Num c = new Num(0,false);
@@ -423,6 +474,10 @@ public class Num implements Comparable<Num> {
         return c;
     }
 
+    /*
+        Does product considering the sign
+    * */
+
     static Num product(Num a, Num b)
     {
         Num c = new Num(0,false);
@@ -437,7 +492,7 @@ public class Num implements Comparable<Num> {
     static Num power(Num a, long n) {
         if(n==0)
         {
-            Num result = new Num(1);
+            Num result = new Num(1,true);
             return result;
         }
         else if (n==1)
@@ -447,7 +502,9 @@ public class Num implements Comparable<Num> {
     
         Long first = n/2;
         Long second = n-n/2;
-        Num result = product(power(a,first),power(a,second));
+        Num partA = new Num(a);
+        Num partB = new Num(a);
+        Num result = product(power(partA,first),power(partB,second));
         // result.printList();
         return result;
     
@@ -501,11 +558,11 @@ public class Num implements Comparable<Num> {
     // Use divide and conquer
     static Num power(Num a, Num n)
     {
-        Num zero = new Num(0L);
-        Num one = new Num(1L);
+        Num zero = new Num(0L,true);
+        Num one = new Num(1L,true);
         if(n.compareTo(zero)==0)
         {
-            Num result = new Num(1);
+            Num result = new Num(1,true);
             return result;
         }
     
@@ -515,7 +572,7 @@ public class Num implements Comparable<Num> {
         }
         else if(n.Digits.size()==1){return power(a,n.Digits.remove());}
         Long temp = n.Digits.remove();
-        Num n0 = new Num (temp);
+        Num n0 = new Num (temp,true);
         Num A = power(a,n);
         Num B = power(A,a.base);
         Num C = power(a,n0);
@@ -584,6 +641,8 @@ public class Num implements Comparable<Num> {
     // compare "this" to "other": return +1 if this is greater, 0 if equal, -1 otherwise
     public int compareTo(Num other)
     {
+        this.truncate();
+        other.truncate();
         Iterator ita= this.Digits.iterator();
         Iterator itb= other.Digits.iterator();
         Long element_a,element_b;
@@ -664,18 +723,20 @@ public class Num implements Comparable<Num> {
         int big=2;
         //System.out.println("Enter 1st number as a string");
         //input=in.next();
-        Num bigNumber1 = new Num("5000");
+        Num bigNumber1 = new Num("999");
    //     bigNumber1.printList();
 
         //System.out.println("Enter 2nd number as a string");
         //input=in.next();
-        Num bigNumber2 = new Num("1");
+        Num bigNumber2 = new Num("8");
     //    bigNumber2.printList();
 
-        Num result = new Num(0L);
+        Num result = new Num(0L,false);
         //result = add(bigNumber1,bigNumber2);
-        result = squareRoot(bigNumber1);
+        //result = subtract(bigNumber1,bigNumber2);
+        //result = squareRoot(bigNumber1);
         //result = product(bigNumber1,bigNumber2);
+        result = power(bigNumber1,bigNumber2);
         System.out.print(result.toString());
      //   System.out.println("bigumber1 * bigNumber2 "+Output);
 

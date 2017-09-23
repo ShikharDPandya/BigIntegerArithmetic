@@ -596,7 +596,9 @@ public class Num implements Comparable<Num> {
         {
             return a;
         }
-        else if(n.Digits.size()==1){return power(a,n.Digits.remove());}
+        else if(n.Digits.size()==1){
+            return power(a,n.Digits.peek());
+        }
         Long temp = n.Digits.remove();
         Num n0 = new Num (temp,true);
         Num A = power(a,n);
@@ -759,12 +761,12 @@ public class Num implements Comparable<Num> {
         int big=2;
         //System.out.println("Enter 1st number as a string");
         //input=in.next();
-        Num bigNumber1 = new Num("256");
+        Num bigNumber1 = new Num("2");
    //     bigNumber1.printList();
 
         //System.out.println("Enter 2nd number as a string");
         //input=in.next();
-        Num bigNumber2 = new Num("256");
+        Num bigNumber2 = new Num("2");
     //    bigNumber2.printList();
 
         Num result = new Num(0L,false);
@@ -772,7 +774,7 @@ public class Num implements Comparable<Num> {
         //result = subtract(bigNumber1,bigNumber2);
         //result = squareRoot(bigNumber1);
         //result = product(bigNumber1,bigNumber2);
-        result = product(bigNumber1,bigNumber2);
+        result = power(bigNumber1,bigNumber2);
         System.out.print(result.toString());
      //   System.out.println("bigumber1 * bigNumber2 "+Output);
 

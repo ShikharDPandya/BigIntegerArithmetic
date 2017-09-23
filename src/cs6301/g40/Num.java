@@ -178,9 +178,7 @@ public class Num implements Comparable<Num> {
         Iterator ita= a.Digits.iterator();
         Iterator itb= b.Digits.iterator();
         Long sum=0L,carry=0L, element_a,element_b;
-
-
-        //c.negative=neg;
+        
 
         while(ita.hasNext() && itb.hasNext())
         {
@@ -297,6 +295,8 @@ public class Num implements Comparable<Num> {
 
             c.Digits.add(diff);
         }
+        /*if a still has digits to process and b has exhausted all digits
+        * check if there is a pending borrow*/
         if(!didBorrow)
             while(ita.hasNext() && !itb.hasNext())
             {
@@ -306,6 +306,11 @@ public class Num implements Comparable<Num> {
         else
             while(ita.hasNext() && !itb.hasNext())
             {
+                /*Takes care of the following case: 5000
+                                                   -   1
+                                                   ------
+                                                    4999
+                * */
                 element_a = (Long)ita.next();
                 if(!borrowDone)
                 {
@@ -408,7 +413,7 @@ public class Num implements Comparable<Num> {
         Num Y2 = new Num(0,false);
         long prod=1,index = 0, n = 0;
 
-
+        /*first check if both numbers are of equal length- if not then append 0s to make them equal*/
         if(X.Digits.size() != Y.Digits.size())
         {
             if(X.Digits.size() < Y.Digits.size())
@@ -426,6 +431,7 @@ public class Num implements Comparable<Num> {
                 }
             }
         }
+        /*if after making the size equal, the size is odd then make the size even by adding one 0*/
         if(X.Digits.size()%2 != 0 && X.Digits.size()!=1)
         {
             X.Digits.add(0L);
@@ -434,6 +440,7 @@ public class Num implements Comparable<Num> {
 
         n = X.Digits.size();        // size of X is same as Y now
 
+        //if size is 1: base case reached: do simple multiplication
         if(X.Digits.size() == 1 && Y.Digits.size() == 1)
         {
             prod = X.Digits.peek() * Y.Digits.peek();
@@ -442,6 +449,7 @@ public class Num implements Comparable<Num> {
         }
         else
         {
+            //creates X1, X2, Y1, Y2
             for (long digit:X.Digits)
             {
                 if(index < X.Digits.size()/2)
@@ -475,20 +483,25 @@ public class Num implements Comparable<Num> {
     }
 
     /*
-        Does product considering the sign
+        Does product considering the sign and truncate the leading zeroes
     * */
 
     static Num product(Num a, Num b)
     {
         Num c = new Num(0,false);
+        Num partA=new Num(a);
+        Num partB=new Num(b);
         c.negative=a.negative^b.negative;
-        c = unsignedProduct(a,b);
+        c = unsignedProduct(partA,partB);
+        //truncates extra 0s which were added while doing product
         c.truncate();
         a.truncate();
         b.truncate();
         return c;
     }
-    // Use divide and conquer
+    // Use divide and conquer to find power of
+    //  divide the base to half until you reach base case
+    //  return product of both parts
     static Num power(Num a, long n) {
         if(n==0)
         {
@@ -512,6 +525,14 @@ public class Num implements Comparable<Num> {
     /* End of Level 1 */
 	
 	/* Start of Level 2 */
+	/*
+	    
+	* */
+	//Use binar ysearch (implemented by binarydivision() method) to implement division.
+    // Num a : It is a number to be divided by Num b (dividend)
+    // Num b : It is a number which divides Num a (divisor)
+    //while calling binarydivision;  Dividend, Divisor, Highest value of range i.e Dividend
+    // and Lowest value of range i.e 0 is given as parameter
     static Num divide(Num a, Num b)
     {
         Num low = new Num("0");
@@ -521,17 +542,18 @@ public class Num implements Comparable<Num> {
         return result;
     }
     
+    //Implements binary search for division of two numbers
+    // Num a : It is a number to be divided by Num b (dividend)
+    // Num b : It is a number which divides Num a (divisor)
+    // Num high: Highest value of range in which quotient will lie
+    // Num low: Lowest value of range in which quotient will lie
+    
     static Num binarydivision(Num a, Num b, Num high, Num low){
         Num zero = new Num("0");
         if(b.compareTo(zero)==0) throw  new java.lang.RuntimeException("Division by Zero");
         Num mid = divideByTwo(add(high,low));
         Num one = new Num ("1");
         Num prod = product(mid,b);
-        // truncate leading zeroes from numbers
-	   /* mid.truncate();
-	    prod.truncate();
-	    b.truncate();
-	    prod.truncate();*/
         if(low.compareTo(high)>=0)
         {
             if(prod.compareTo(a)>0) return subtract(mid,one);
@@ -546,6 +568,7 @@ public class Num implements Comparable<Num> {
         
     }
     
+    //Implement mod function
     static Num mod(Num a, Num b)
     {
         Num c = divide(a,b);
@@ -555,7 +578,10 @@ public class Num implements Comparable<Num> {
     }
     
     
-    // Use divide and conquer
+    
+    // Use divide and conquer to calculate the power with "Num a" as base and "Num n" as exponent
+    //Num a : base
+    //Num n : exponent
     static Num power(Num a, Num n)
     {
         Num zero = new Num(0L,true);
@@ -580,6 +606,9 @@ public class Num implements Comparable<Num> {
         return D;
     }
     
+    //Use divide and conquer to implement Squareroot of a Number
+    //Num a: Number whose Squareroot needs to be calculated
+    //This function calls another function findRoot
     static Num squareRoot(Num a )
     {
         Num zero = new Num("0");
@@ -588,6 +617,10 @@ public class Num implements Comparable<Num> {
         return sqroot;
     }
     
+    //Use divide and conquer technique to implement Squareroot of a number
+    //Num a: Number whose Squareroot needs to be calculated
+    // Num high: Highest value of range in which squareroot of Num a will lie
+    // Num low: Lowest value of range in which squareroot of Num a will lie
     static Num findRoot(Num a,Num high, Num low)
     {
         Num one = new Num("1");
@@ -610,7 +643,8 @@ public class Num implements Comparable<Num> {
         else return findRoot(a,high,add(mid,one));
     }    /* End of Level 2 */
     
-    
+    // This function divides Num a by 2
+    //This function is called from division function which uses binary search
     static Num divideByTwo(Num a)
     {
         Long rem = 0L;
@@ -631,6 +665,8 @@ public class Num implements Comparable<Num> {
         return a;
     }
     
+    
+    // This function truncates leading zeroes from the number
     public void truncate(){
         while(this.Digits.peekLast()==0L && this.Digits.size()>1){
             this.Digits.removeLast();
@@ -639,7 +675,7 @@ public class Num implements Comparable<Num> {
     
     // Utility functions
     // compare "this" to "other": return +1 if this is greater, 0 if equal, -1 otherwise
-    public int compareTo(Num other)
+        public int compareTo(Num other)
     {
         this.truncate();
         other.truncate();
@@ -686,10 +722,10 @@ public class Num implements Comparable<Num> {
     // then the output is "100: 65 9 1"
     void printList()
     {
-        System.out.println("----------------Printing---------------");
+        System.out.print(this.base()+": ");
         for (long num:Digits)
         {
-            System.out.println(num);
+            System.out.print(num+" ");
         }
     }
     
@@ -723,12 +759,12 @@ public class Num implements Comparable<Num> {
         int big=2;
         //System.out.println("Enter 1st number as a string");
         //input=in.next();
-        Num bigNumber1 = new Num("999");
+        Num bigNumber1 = new Num("256");
    //     bigNumber1.printList();
 
         //System.out.println("Enter 2nd number as a string");
         //input=in.next();
-        Num bigNumber2 = new Num("8");
+        Num bigNumber2 = new Num("256");
     //    bigNumber2.printList();
 
         Num result = new Num(0L,false);
@@ -736,7 +772,7 @@ public class Num implements Comparable<Num> {
         //result = subtract(bigNumber1,bigNumber2);
         //result = squareRoot(bigNumber1);
         //result = product(bigNumber1,bigNumber2);
-        result = power(bigNumber1,bigNumber2);
+        result = product(bigNumber1,bigNumber2);
         System.out.print(result.toString());
      //   System.out.println("bigumber1 * bigNumber2 "+Output);
 

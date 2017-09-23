@@ -55,6 +55,9 @@ public class LP1L3 {
 		}
 	}
 
+	// Evaluates the given postFix expression and returns the calculated value.
+	//expression: postfix expression
+	//varAssignTable:  Hashmap referred by function to calculate expression
 	public static Num evaluateExpression(String expression, Map<Character, Num> varAssignTable) {
 		// TODO Auto-generated method stub
 		// remove spaces from expression
@@ -69,20 +72,47 @@ public class LP1L3 {
 			char ch = chars[i];
 
 			if (isAnOperator(ch)) {
-				Num num2 = tempRes.pop();
-				Num num1 = tempRes.pop();
+				
 
 				switch (ch) {
 				case '+':
+					Num num2 = tempRes.pop();
+					Num num1 = tempRes.pop();
 					tempRes.push(Num.add(num1, num2));
 					break;
+					
+				case '^':
+					 num2 = tempRes.pop();
+					 num1 = tempRes.pop();
+					tempRes.push(Num.power(num1,num2));
+					break;
+					
+				case '%' :
+					 num2 = tempRes.pop();
+					 num1 = tempRes.pop();
+					tempRes.push(Num.mod(num1,num2));
+					break;
+					
+				case '|' :
+					num1 = tempRes.pop();
+					tempRes.push(Num.squareRoot(num1));
+					break;
+						
 				case '*':
+					num2 = tempRes.pop();
+					num1 = tempRes.pop();
 					tempRes.push(Num.product(num1, num2));
 					break;
+					
 				case '-':
+					num2 = tempRes.pop();
+					num1 = tempRes.pop();
 					tempRes.push(Num.subtract(num1, num2));
 					break;
+					
 				case '/':
+					num2 = tempRes.pop();
+					num1 = tempRes.pop();
 					tempRes.push(Num.divide(num1, num2));
 					break;
 				}

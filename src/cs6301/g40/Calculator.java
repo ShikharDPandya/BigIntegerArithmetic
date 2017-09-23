@@ -24,6 +24,7 @@ public class Calculator {
 		precedence = new HashMap<>();
 	}
 	
+	// Sets the precedence of arithmetic operators
 	private void setupPrecedence() {
 		precedence.put("|", 4);
 		precedence.put("^", 4);
@@ -35,6 +36,8 @@ public class Calculator {
 		precedence.put("(", 1);
 	}
 	
+	// This function transforms infix expression to postfix expression
+	// infixExpression: String which contains the infix Expression
 	
 	public String infixToPostfix(String infixExpression) {
 		ArrayDeque<String> outputQueue = new ArrayDeque<>();
@@ -107,7 +110,7 @@ public class Calculator {
 			outputQueue.add(operatorStack.pop());
 		}
 		
-		System.out.println(outputQueue.toString());
+//		System.out.println(outputQueue.toString());
 		return outputQueue.toString();
 	}
 	

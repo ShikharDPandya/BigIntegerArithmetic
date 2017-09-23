@@ -185,11 +185,22 @@ public class LP1L4 {
 			String expr = (String) me.getValue();
 			
 			if(expr.equals(";")){
-				Num lastValue = value.get(value.size() - 1);
+				//Num lastValue; // = value.get(value.size() - 1);
+				Set set1 = value.entrySet();
+				Iterator it1 = set1.iterator();
+				Map.Entry me1 = null;
+				Map.Entry me2 = null;
+				while(it1.hasNext())
+				{
+				//	me2 = me1;
+					
+					me1 = (Map.Entry)it1.next();
+				}
+				Num lastValue = (Num) me1.getValue();
 				String str = new String(strbuilder);
 				System.out.println(str);
 				if(lastValue!=null) {
-					lastValue.printList();
+				 System.out.println(lastValue.toString());
 				}
 				System.out.print("Program Terminated");
 				return;

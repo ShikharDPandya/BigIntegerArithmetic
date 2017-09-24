@@ -4,10 +4,11 @@
 // Change following line to your group number
 // Changed type of base to long: 1:15 PM, 2017-09-08.
 package cs6301.g40;
-
-
-import com.sun.org.apache.regexp.internal.RE;
-
+/*
+ * Group members:
+Mukesh Kumar(mxk170430)
+Shikhar Pandya (sdp170030)
+Arijeet Roy (axr165030)*/
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;

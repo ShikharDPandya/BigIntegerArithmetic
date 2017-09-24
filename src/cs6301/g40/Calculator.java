@@ -1,5 +1,9 @@
 package cs6301.g40;
-
+/*
+ * Group members:
+Mukesh Kumar(mxk170430)
+Shikhar Pandya (sdp170030)
+Arijeet Roy (axr165030)*/
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Scanner;
